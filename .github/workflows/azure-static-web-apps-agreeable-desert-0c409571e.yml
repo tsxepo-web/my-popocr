@@ -8,6 +8,8 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - master
+env:
+  NODE_VERSION: '18.20.4' 
 
 jobs:
   build_and_deploy_job:
@@ -32,6 +34,10 @@ jobs:
           api_location: "api" # Api source code path - optional
           output_location: "dist/my-popocr" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+      - name: Setip Node ${{ env.NODE_VERSION }} Environmrnt
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
