@@ -30,7 +30,7 @@ export class AnalyzeReceiptComponent {
       this.receiptModelService.analyzeReceipt(formData).subscribe({
         next: (response) => {
           console.log(response);
-          this.extractedReceipt = response.text;
+          this.extractedReceipt = response.analyzeResult.content;
         },
         error: (err) => {
           console.error('Error uploading file', err);
