@@ -1,0 +1,11 @@
+<div>
+    <h1>Analyze Document</h1>
+    <input type="file" (change)="onFileSelected($event)">
+    <button (click)="onSubmit()" type="submit">Upload</button>
+
+    <div *ngIf="extractedDocument">
+      <h3>Extracted Document:</h3>
+      <p>{{ extractedDocument }}</p>
+    </div>
+  </div>
+  
