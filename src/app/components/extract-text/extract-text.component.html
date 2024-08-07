@@ -1,0 +1,11 @@
+<div>
+    <h1>Extract Text from Image</h1>
+    <input type="file" (change)="onFileSelected($event)">
+    <button (click)="onSubmit()" type="submit">Upload</button>
+  
+    <div *ngIf="extractedText">
+      <h3>Extracted Text:</h3>
+      <p>{{ extractedText }}</p>
+    </div>
+  </div>
+  
