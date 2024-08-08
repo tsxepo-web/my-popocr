@@ -1,11 +1,51 @@
-<div>
-    <h1>Analyze Document</h1>
-    <input type="file" (change)="onFileSelected($event)">
-    <button (click)="onSubmit()" type="submit">Upload</button>
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Extract Text from Image</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="col-span-1">
+            <div class="border p-4 rounded-lg shadow-md">
+                <input type="file" (change)="onFileSelected($event)" class="mb-4 w-full">
+                <button (click)="onSubmit()" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">Upload</button>
+            </div>
+        </div>
+        
+        <div class="col-span-1">
+            <div class="border p-4 rounded-lg shadow-md">
+                <h3 class="textx font-semibold mb-2">Selected image</h3>
+                <img [src]="imagePreview" alt="Image Preview" class="w-full h-auto">
+            </div>
+        </div>
+        
+        <div class="col-span-1" *ngIf="extractedDocumenxt">
+            <div class="border p-4 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2">Extracted Text:</h3>
+                <p>{{ extractedDocumenxt }}</p>
 
-    <div *ngIf="extractedDocument">
-      <h3>Extracted Document:</h3>
-      <p>{{ extractedDocument }}</p>
+                <button (click)="toggleTables()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                {{ showTables ? 'Hide Tables' : 'Show Tables' }}
+                </button>
+                
+                <div *ngIf="showTables" class="mt-4">
+                    <div *ngFor="let table of tables; let tableIndex = index">
+                      <h4 class="text-lg font-semibold mb-2">Table {{ tableIndex + 1 }}</h4>
+                      <table class="min-w-full border border-gray-300">
+                        <thead>
+                            <tr>
+                                <th *ngFor="let header of getTableHeaders(table)" class="border p-2">
+                                    {{ header.content }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let rowIndex of getTableRows(table)">
+                                <td *ngFor="let cell of getRowData(table, rowIndex)" class="border p-2">
+                                    {{ cell.content }} 
+                                </td>
+                            </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                </div>
+        </div>
     </div>
   </div>
   
