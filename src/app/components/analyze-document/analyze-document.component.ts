@@ -8,7 +8,7 @@ import { NgxImageCompressService } from 'ngx-image-compress';
   standalone: true,
   imports: [NgIf, NgFor],
   templateUrl: './analyze-document.component.html',
-  styleUrls: ['./analyze-document.component.css']
+  styleUrls: ['./analyze-document.component.css'],
 })
 export class AnalyzeDocumentComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -18,16 +18,20 @@ export class AnalyzeDocumentComponent {
     'Battle-Hero.JPG',
     'peginv.jpg',
     'maths.jpg',
-    'id_card.jpg'
+    'id_card.jpg',
   ];
   currentPlaceholderImage: string = this.placeholderImages[1];
   imagePreview: string | ArrayBuffer | null = null;
-  tables: any[] = [];
+  imageSelected: boolean = false;
+  tables: string[][] = [];
   paragraphs: any[] = [];
   showTables: boolean = false;
   showParagraphs: boolean = true;
 
-  constructor(private docmodelService: DocumentAnalysisService, private imageCompress: NgxImageCompressService) {}
+  constructor(
+    private docmodelService: DocumentAnalysisService,
+    private imageCompress: NgxImageCompressService
+  ) {}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -35,17 +39,17 @@ export class AnalyzeDocumentComponent {
       this.handleFileInput(input.files[0]);
     }
   }
-    
+
   handleFileInput(file: File): void {
     this.selectedFile = file;
     const reader = new FileReader();
     reader.onload = () => {
       const imgBase64Path = reader.result as string;
-      this.imageCompress.compressFile(imgBase64Path, -1, 50, 50).then(
-        result => {
+      this.imageCompress
+        .compressFile(imgBase64Path, -1, 50, 50)
+        .then((result) => {
           this.imagePreview = result;
-        }
-      );
+        });
     };
     reader.readAsDataURL(file);
   }
@@ -59,17 +63,21 @@ export class AnalyzeDocumentComponent {
       const blob = this.base64ToBlob(base64Data, 'image/jpeg');
       formData.append('file', blob, 'placeholder.jpg');
     }
-    
+
     this.docmodelService.analyseDocument(formData).subscribe({
       next: (response) => {
         console.log(response.analyzeResult);
         this.extractedDocumenxt = response.analyzeResult.content;
-        this.tables = Array.isArray(response.analyzeResult.tables) ? response.analyzeResult.tables : [];
-        this.paragraphs = Array.isArray(response.analyzeResult.paragraphs) ? response.analyzeResult.paragraphs : [];
+        this.tables = Array.isArray(response.analyzeResult.tables)
+          ? response.analyzeResult.tables
+          : [];
+        this.paragraphs = Array.isArray(response.analyzeResult.paragraphs)
+          ? response.analyzeResult.paragraphs
+          : [];
       },
       error: (err) => {
         console.error('Error uploading file', err);
-      }
+      },
     });
   }
 
@@ -94,22 +102,33 @@ export class AnalyzeDocumentComponent {
   }
 
   getTableHeaders(table: any): any[] {
-    return table.cells.filter((cell: any) => cell.rowIndex === 0).sort((a: any, b: any) => a.columnIndex - b.columnIndex);
+    return table.cells
+      .filter((cell: any) => cell.rowIndex === 0)
+      .sort((a: any, b: any) => a.columnIndex - b.columnIndex);
   }
 
   getTableRows(table: any): any[] {
-    const rowIndices = Array.from(new Set(table.cells.map((cell: any) => cell.rowIndex).filter((index: number) => index !== 0)));
+    const rowIndices = Array.from(
+      new Set(
+        table.cells
+          .map((cell: any) => cell.rowIndex)
+          .filter((index: number) => index !== 0)
+      )
+    );
     return rowIndices;
   }
 
   getRowData(table: any, rowIndex: number): any[] {
-    return table.cells.filter((cell: any) => cell.rowIndex === rowIndex).sort((a: any, b: any) => a.columnIndex - b.columnIndex);
+    return table.cells
+      .filter((cell: any) => cell.rowIndex === rowIndex)
+      .sort((a: any, b: any) => a.columnIndex - b.columnIndex);
   }
 
   selectPlaceholder(placeholder: string): void {
     this.imagePreview = placeholder;
-    this.selectedFile = null; 
-    this.convertPlaceholderToBase64(placeholder)
+    this.selectedFile = null;
+    this.convertPlaceholderToBase64(placeholder);
+    this.imageSelected = true;
   }
   convertPlaceholderToBase64(imagePath: string): void {
     const img = new Image();
@@ -125,5 +144,47 @@ export class AnalyzeDocumentComponent {
         this.imagePreview = canvas.toDataURL('image/jpeg');
       }
     };
+  }
+
+  onSaveTables(table: any[][]): void {
+    if (this.tables.length > 0) {
+      this.docmodelService.saveTables(table).subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'tables.xlsx';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        },
+        error: (error) => {
+          console.error('Error saving table', error);
+        },
+      });
+    }
+  }
+
+  onSaveText(): void {
+    if (this.extractedDocumenxt) {
+      this.docmodelService
+        .saveExtractedText(this.extractedDocumenxt)
+        .subscribe({
+          next: (blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'extracted_text.docx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          },
+          error: (error) => {
+            console.error('Error saving text', error);
+          },
+        });
+    }
   }
 }

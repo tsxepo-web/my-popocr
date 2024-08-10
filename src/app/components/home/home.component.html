@@ -1,10 +1,52 @@
+<main class="flex flex-col items-center p-4">
+  <!-- Hero Section -->
+  <section
+    class="bg-blue-50 p-8 rounded-lg shadow-lg text-center mb-8 w-full max-w-4xl"
+  >
+    <h1 class="text-3xl text-blue-600 font-bold mb-4">Welcome to PopOcr</h1>
+    <p class="text-xl mb-8">
+      Your ultimate solution for document and receipt analysis.
+    </p>
+    <a
+      [routerLink]="['/analyzeDocument']"
+      class="text-blue-600 text-lg hover:underline block mb-2"
+    >
+      Analyze Documents
+    </a>
+    <a
+      [routerLink]="['/analyzeReceipt']"
+      class="text-blue-600 text-lg hover:underline"
+    >
+      Analyze Receipts
+    </a>
+  </section>
 
-<div>
-    <h1 class="text-3xl text-blue-600">Welcome to PopOcr</h1>
-    <a routerLink="/extractText">Go to Extract Text Page</a>
-    <br>
-    <a routerLink="/analyzeDocument">Go to  Document Analysis Page</a>
-    <br>
-    <a routerLink="/analyzeReceipt">Go to  Receipt Analysis Page</a>
-</div>
-<router-outlet />
+  <!-- Explanation Section -->
+  <section class="text-left mb-8 w-full max-w-4xl px-4">
+    <h2 class="text-2xl font-semibold mb-4">
+      Why Use OCR and Document Understanding Models?
+    </h2>
+    <p class="text-lg text-gray-700 mb-4">
+      Optical Character Recognition (OCR) and document understanding models
+      offer significant advantages in automating and enhancing data extraction
+      processes. OCR technology allows for the conversion of printed or
+      handwritten text into digital format, making it easy to edit, search, and
+      store textual information. This technology is particularly valuable in
+      processing documents, receipts, and forms quickly and accurately.
+    </p>
+    <p class="text-lg text-gray-700">
+      Document understanding models, on the other hand, provide deeper insights
+      by analyzing the context and structure of documents. They can extract and
+      categorize data from various types of documents, such as invoices,
+      contracts, and reports, providing structured information that is crucial
+      for business intelligence and decision-making. These models not only
+      improve efficiency but also reduce errors and manual workload, leading to
+      faster and more reliable data processing.
+    </p>
+  </section>
+
+  <!-- Content Section -->
+  <section class="content w-full max-w-4xl">
+    <router-outlet></router-outlet>
+  </section>
+</main>
