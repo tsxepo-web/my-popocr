@@ -16,12 +16,7 @@ export class HomeComponent {
   selectedFile: File | null = null;
   selectedImage: string | null = null;
   extractedDocument: string | null = null;
-  placeholderImages: string[] = [
-    'Battle-Hero.JPG',
-    'peginv.jpg',
-    'maths.jpg',
-    'id_card.jpg',
-  ];
+  placeholderImages: string[] = ['peginv.jpg', 'model.PNG', 'Battle-Hero.JPG'];
   currentPlaceholderImage: string = this.placeholderImages[1];
   imagePreview: string | ArrayBuffer | null = null;
   imageSelected: boolean = false;
