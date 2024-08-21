@@ -1,52 +1,142 @@
-<main class="flex flex-col items-center p-4">
-  <!-- Hero Section -->
-  <section
-    class="bg-blue-50 p-8 rounded-lg shadow-lg text-center mb-8 w-full max-w-4xl"
-  >
-    <h1 class="text-3xl text-blue-600 font-bold mb-4">Welcome to PopOcr</h1>
-    <p class="text-xl mb-8">
-      Your ultimate solution for document and receipt analysis.
-    </p>
-    <a
-      [routerLink]="['/analyzeDocument']"
-      class="text-blue-600 text-lg hover:underline block mb-2"
-    >
-      Analyze Documents
-    </a>
-    <a
-      [routerLink]="['/analyzeReceipt']"
-      class="text-blue-600 text-lg hover:underline"
-    >
-      Analyze Receipts
-    </a>
-  </section>
+<h1 class="text-3xl font-custom px-4 pb-4">Ocr to Office Documents</h1>
 
-  <!-- Explanation Section -->
-  <section class="text-left mb-8 w-full max-w-4xl px-4">
-    <h2 class="text-2xl font-semibold mb-4">
-      Why Use OCR and Document Understanding Models?
-    </h2>
-    <p class="text-lg text-gray-700 mb-4">
-      Optical Character Recognition (OCR) and document understanding models
-      offer significant advantages in automating and enhancing data extraction
-      processes. OCR technology allows for the conversion of printed or
-      handwritten text into digital format, making it easy to edit, search, and
-      store textual information. This technology is particularly valuable in
-      processing documents, receipts, and forms quickly and accurately.
-    </p>
-    <p class="text-lg text-gray-700">
-      Document understanding models, on the other hand, provide deeper insights
-      by analyzing the context and structure of documents. They can extract and
-      categorize data from various types of documents, such as invoices,
-      contracts, and reports, providing structured information that is crucial
-      for business intelligence and decision-making. These models not only
-      improve efficiency but also reduce errors and manual workload, leading to
-      faster and more reliable data processing.
-    </p>
-  </section>
+<div class="px-4 min-h-screen pb-4 border font-custom">
+  <div class="grid grid-cols-4 gap-4 min-h-full">
+    <div class="bg-[#2c3032] grid grid-cols-1 gap-4 justify-items-center pb-4">
+      <input
+        #fileInput
+        type="file"
+        (change)="onFileSelected($event)"
+        class="mb-4 hidden"
+      />
+      <div class="bg-gray-800 min-h-full">
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Consequatur,
+        nemo. Placeat, ipsa excepturi! Ut impedit quidem repudiandae voluptas
+        mollitia ipsam harum, accusamus soluta ratione nihil asperiores ad
+        officiis? Ea, quos?
+      </div>
+      <img
+        *ngFor="let image of placeholderImages"
+        [src]="image"
+        (click)="selectPlaceholder(image)"
+        [ngClass]="{
+          'border-8 border-blue-500': selectedImage === image,
+          border: selectedImage !== image
+        }"
+        class="w-32 h-32 cursor-pointer border rounded-lg gap-4"
+        alt="Placeholder"
+      />
+    </div>
 
-  <!-- Content Section -->
-  <section class="content w-full max-w-4xl">
-    <router-outlet></router-outlet>
-  </section>
-</main>
+    <div class="bg-gray-800 col-start-2 col-end-4">
+      <div class="border p-4 rounded-lg shadow-md h-full flex flex-col">
+        <button
+          (click)="onSubmit()"
+          class="bg-gray-600 mb-2 mt-4 text-white p-2 rounded transition duration-300 ease-in-out transform hover:bg-gray-300 hover:scale-105 max-w-xs"
+        >
+          Analyze Results
+        </button>
+        <div class="flex-grow flex items-center justify-center">
+          <img
+            [src]="imagePreview"
+            alt="Click on any Image to analyze"
+            class="w-full max-h-96 object-contain"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-[#2c3032]">
+      <div class="border p-4 rounded-lg shadow-md flex flex-col h-full">
+        <div class="mt-4">
+          <button
+            (click)="toggleParagraphs()"
+            class="bg-gray-600 mb-2 mr-4 text-white p-2 rounded transition duration-300 ease-in-out transform hover:bg-gray-900 hover:scale-105"
+          >
+            Text
+          </button>
+
+          <button
+            (click)="toggleTables()"
+            class="bg-gray-600 mb-2 text-white p-2 rounded transition duration-300 ease-in-out transform hover:bg-gray-900 hover:scale-105"
+          >
+            Tables
+          </button>
+        </div>
+
+        <div class="flex-grow">
+          <!-- Loading Spinner -->
+          <div
+            *ngIf="isAnalyzing"
+            class="flex justify-center items-center h-full"
+          >
+            <div
+              class="inline-block h-24 w-24 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+              role="status"
+            >
+              <span
+                class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                >Loading...</span
+              >
+            </div>
+          </div>
+
+          <div *ngIf="showTables && !isAnalyzing">
+            <div *ngFor="let table of tables; let i = index" class="mb-4">
+              <h3 class="text-lg font-bold mb-2">Table {{ i + 1 }}</h3>
+              <table class="min-w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    <th
+                      *ngFor="let header of getTableHeaders(table)"
+                      class="border p-2"
+                    >
+                      {{ header.content }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let rowIndex of getTableRows(table)">
+                    <td
+                      *ngFor="let cell of getRowData(table, rowIndex)"
+                      class="border p-2"
+                    >
+                      {{ cell.content }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div *ngIf="showParagraphs && !isAnalyzing">
+            <div *ngFor="let paragraph of paragraphs">
+              <h4 class="font-semibold text-red-700">{{ paragraph.role }}</h4>
+              <p>{{ paragraph.content }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between mt-4">
+          <button
+            *ngIf="showTables"
+            (click)="onSaveTables(tables)"
+            [disabled]="!showTables"
+            class="bg-slate-900 mb-2 text-white p-2 rounded transition duration-300 ease-in-out transform hover:bg-slate-400 hover:scale-105"
+          >
+            Save Tables to Excel
+          </button>
+
+          <button
+            *ngIf="showParagraphs && paragraphs.length > 0"
+            (click)="onSaveText()"
+            [disabled]="showTables"
+            class="bg-slate-900 mb-2 text-white p-2 rounded transition duration-300 ease-in-out transform hover:bg-slate-400 hover:scale-105"
+          >
+            Save Text to Word
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
